@@ -1,4 +1,4 @@
-import { Account, Client, ID, Models } from 'appwrite';
+import { Account, Client, ID } from 'appwrite';
 import { create } from 'zustand';
 
 const ENDPOINT_ID = process.env.NEXT_PUBLIC_ENDPOINT_ID!;
@@ -10,37 +10,36 @@ const account = new Account(client);
 client.setEndpoint(ENDPOINT_ID).setProject(PROJECT_ID);
 
 export interface IUser {
-  $id: string
-  $createdAt: string
-  $updatedAt: string
-  name: string
-  registration: string
-  status: boolean
-  labels: any[]
-  passwordUpdate: string
-  email: string
-  phone: string
-  emailVerification: boolean
-  phoneVerification: boolean
-  mfa: boolean
-  prefs: IPrefs
-  targets: ITarget[]
-  accessedAt: string
+  $id: string;
+  $createdAt: string;
+  $updatedAt: string;
+  name: string;
+  registration: string;
+  status: boolean;
+  labels: any[];
+  passwordUpdate: string;
+  email: string;
+  phone: string;
+  emailVerification: boolean;
+  phoneVerification: boolean;
+  mfa: boolean;
+  prefs: IPrefs;
+  targets: ITarget[];
+  accessedAt: string;
 }
 
 export interface IPrefs {}
 
 export interface ITarget {
-  $id: string
-  $createdAt: string
-  $updatedAt: string
-  name: string
-  userId: string
-  providerId: any
-  providerType: string
-  identifier: string
+  $id: string;
+  $createdAt: string;
+  $updatedAt: string;
+  name: string;
+  userId: string;
+  providerId: any;
+  providerType: string;
+  identifier: string;
 }
-
 
 export type IRequestError = {
   type: string;
@@ -67,6 +66,8 @@ export type IUserState = {
     email: string;
     password: string;
   }) => Promise<void>;
+
+  deleteUserSession: () => Promise<void>;
 };
 
 const UserStore = create<IUserState>((set, get) => ({
@@ -80,8 +81,8 @@ const UserStore = create<IUserState>((set, get) => ({
 
       promise.then(
         function (response) {
-          const user = response as IUser
-          set({ user })
+          const user = response as IUser;
+          set({ user });
           resolve();
         },
         function (error) {
@@ -146,6 +147,23 @@ const UserStore = create<IUserState>((set, get) => ({
             status: 500,
           };
           reject(customError);
+        }
+      );
+    });
+  },
+
+  deleteUserSession: (): Promise<void> => {
+    return new Promise(async (resolve, reject) => {
+      const response = account.deleteSessions();
+
+      response.then(
+        function (response) {
+          set({ user: null });
+          resolve()
+        },
+        function (error) {
+          console.log(error);
+          reject()
         }
       );
     });
