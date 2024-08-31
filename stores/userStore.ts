@@ -1,4 +1,4 @@
-import { Account, Client } from 'appwrite';
+import { Account, Client, ID } from 'appwrite';
 import { create } from 'zustand';
 
 const ENDPOINT_ID = process.env.NEXT_PUBLIC_ENDPOINT_ID!;
@@ -75,7 +75,7 @@ const UserStore = create<IUserState>((set, get) => ({
     return new Promise(async (resolve, reject) => {
       client.setEndpoint(ENDPOINT_ID).setProject(PROJECT_ID);
 
-      const response = account.create(email, password, name);
+      const response = account.create(ID.unique(), email, password, name);
 
       response.then(
         function (response) {
