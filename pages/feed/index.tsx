@@ -8,13 +8,13 @@ export default function index() {
   const { user, getUser } = UserStore();
   useEffect(() => {
     getUser()
-      .then(() => {
-
-      })
+      .then()
       .catch(() => {
         route.push('/');
       });
   }, []);
+
+  console.log(user)
 
   // const logoutSession = async () => {
   //   const client = new Client();

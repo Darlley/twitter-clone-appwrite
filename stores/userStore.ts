@@ -1,4 +1,4 @@
-import { Account, Client, ID } from 'appwrite';
+import { Account, Client, ID, Models } from 'appwrite';
 import { create } from 'zustand';
 
 const ENDPOINT_ID = process.env.NEXT_PUBLIC_ENDPOINT_ID!;
@@ -7,12 +7,40 @@ const PROJECT_ID = process.env.NEXT_PUBLIC_PROJECT_ID!;
 const client = new Client();
 const account = new Account(client);
 
-export type IUser = {
-  id: string;
-  name: string;
-  email: string;
-  password: string;
-};
+client.setEndpoint(ENDPOINT_ID).setProject(PROJECT_ID);
+
+export interface IUser {
+  $id: string
+  $createdAt: string
+  $updatedAt: string
+  name: string
+  registration: string
+  status: boolean
+  labels: any[]
+  passwordUpdate: string
+  email: string
+  phone: string
+  emailVerification: boolean
+  phoneVerification: boolean
+  mfa: boolean
+  prefs: IPrefs
+  targets: ITarget[]
+  accessedAt: string
+}
+
+export interface IPrefs {}
+
+export interface ITarget {
+  $id: string
+  $createdAt: string
+  $updatedAt: string
+  name: string
+  userId: string
+  providerId: any
+  providerType: string
+  identifier: string
+}
+
 
 export type IRequestError = {
   type: string;
@@ -52,7 +80,8 @@ const UserStore = create<IUserState>((set, get) => ({
 
       promise.then(
         function (response) {
-          console.log('UserStore@getUser');
+          const user = response as IUser
+          set({ user })
           resolve();
         },
         function (error) {
@@ -73,8 +102,6 @@ const UserStore = create<IUserState>((set, get) => ({
     password: string;
   }): Promise<void> => {
     return new Promise(async (resolve, reject) => {
-      client.setEndpoint(ENDPOINT_ID).setProject(PROJECT_ID);
-
       const response = account.create(ID.unique(), email, password, name);
 
       response.then(
@@ -104,8 +131,6 @@ const UserStore = create<IUserState>((set, get) => ({
     password: string;
   }): Promise<void> => {
     return new Promise(async (resolve, reject) => {
-      client.setEndpoint(ENDPOINT_ID).setProject(PROJECT_ID);
-
       const response = account.createEmailSession(email, password);
 
       response.then(

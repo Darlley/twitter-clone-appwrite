@@ -1,6 +1,5 @@
 import UserStore from '@/stores/userStore';
 import { Button, Input } from '@nextui-org/react';
-import { Account, Client } from 'appwrite';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 
 interface FormInput {
@@ -9,11 +8,14 @@ interface FormInput {
   password: string;
 }
 
-
-
-export default function CreateAccount() {
-
-  const { createUser } = UserStore()
+export default function CreateAccount({
+  onSuccess,
+  onError,
+}: {
+  onSuccess: () => void;
+  onError?: () => void;
+}) {
+  const { createUser } = UserStore();
 
   const {
     control,
@@ -24,10 +26,12 @@ export default function CreateAccount() {
   } = useForm<FormInput>({
     mode: 'onBlur',
   });
-  
+
   const onSubmit: SubmitHandler<FormInput> = async (data) => {
     const { email, name, password } = data;
-    createUser({name, email, password})
+    createUser({ name, email, password }).then(() => {
+      onSuccess();
+    });
   };
 
   return (
@@ -94,7 +98,13 @@ export default function CreateAccount() {
             />
           )}
         />
-        <Button type="submit" color="primary" variant="shadow">
+        <Button
+          type="submit"
+          color="primary"
+          variant="shadow"
+          isDisabled={isLoading || isSubmitting}
+          isLoading={isLoading || isSubmitting}
+        >
           Cadastrar
         </Button>
       </div>

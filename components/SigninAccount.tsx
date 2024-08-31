@@ -1,5 +1,5 @@
+import UserStore from '@/stores/userStore';
 import { Button, Input } from '@nextui-org/react';
-import { Account, Client } from 'appwrite';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 
 interface FormInput {
@@ -7,10 +7,15 @@ interface FormInput {
   password: string;
 }
 
-const ENDPOINT = process.env.NEXT_PUBLIC_ENDPOINT!;
-const PROJECT = process.env.NEXT_PUBLIC_PROJECT!;
+export default function SigninAccount({
+  onSuccess,
+  onError,
+}: {
+  onSuccess: () => void;
+  onError?: () => void;
+}) {
+  const { createUserSession } = UserStore();
 
-export default function SigninAccount() {
   const {
     control,
     handleSubmit,
@@ -20,25 +25,16 @@ export default function SigninAccount() {
   } = useForm<FormInput>({
     mode: 'onBlur',
   });
-  
+
   const onSubmit: SubmitHandler<FormInput> = async (data) => {
     const { email, password } = data;
-    
-    const client = new Client();
-    const account = new Account(client);
 
-    client.setEndpoint(ENDPOINT).setProject(PROJECT);
-
-    const response = account.createEmailSession(email, password);
-
-    response.then(
-      function (response) {
-        console.log(response);
-      },
-      function (error) {
-        console.log(error);
-      }
-    );
+    createUserSession({
+      email,
+      password,
+    }).then(() => {
+      onSuccess();
+    });
   };
 
   return (
@@ -85,7 +81,13 @@ export default function SigninAccount() {
             />
           )}
         />
-        <Button type="submit" color="primary" variant="shadow">
+        <Button
+          type="submit"
+          color="primary"
+          variant="shadow"
+          isDisabled={isLoading || isSubmitting}
+          isLoading={isLoading || isSubmitting}
+        >
           Entrar
         </Button>
       </div>
